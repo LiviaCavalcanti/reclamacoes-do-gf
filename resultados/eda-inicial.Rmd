@@ -1,0 +1,68 @@
+---
+title: "EDA inicial"
+author: "David Eduardo, José Renan, Juan Victor, Lívia Cavalcanti"
+date: "19 de maio de 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(tidytext)
+library(tm)
+require(cowplot)
+
+```
+
+
+```{r message=FALSE}
+reclamacoes <- read_csv("../data/3-avaliacao-humana/reclamacoes-avaliadas-20190515.csv")
+```
+
+## Quais os pontos mais frequentes nas reclamações dos usuários?
+Uma forma de obter o resumo das reclamações é analisar quais as palavras mais citadas nas reclamações. Com isso, é possível ter uma ideia do que mais gera insatisfação entre os consumidores.
+
+Como primeira análise, verificamos quais as palavras mais frequentes no texto, eliminando, para isso, expressões muito frequentes da Língua Portuguesa, como verbos de ligação, pronomes e conjunções, conhecidas como _stopwords_. É preciso filtrar essas classes de palavras, porque são as que possuem maior frequência na maioria dos textos, ao mesmo tempo que menos transmitem o assunto sendo tratados neles.
+
+```{r warning=FALSE, message=FALSE}
+stopwords_br = c(stopwords(kind="pt"), c("é", "r", "sendo", "pois", "ser", "desde", "pode", "ainda"))
+
+reclamacoes_palavras <- reclamacoes %>% 
+  select(texto, orgao) %>%
+  unnest_tokens(palavra, texto) %>% 
+  filter(!palavra %in% stopwords_br) %>%
+  count(orgao, palavra, sort = TRUE) %>% 
+  filter(is.na(as.numeric(palavra)))
+
+total_palavras <- reclamacoes_palavras %>% 
+  group_by(orgao) %>% 
+  summarize(total = sum(n))
+
+reclamacoes_palavras <- left_join(reclamacoes_palavras, total_palavras)
+
+head(reclamacoes_palavras)
+```
+Pelos gráficos abaixo, podemos ver que para ambas as agências são recorrentes as citações de empresas prestadoras, além de problemas com plano e serviço, conta e reembolso, protocolos e ligações. Ou seja, mesmo em áreas diferentes, as reclamações recaem nos mesmos problemas. 
+
+É importante notar que a análise está sendo feita sob o ponto de vista de proporção entre a frequência da palavra pelo total de palavras que não são _stopwords_.
+
+```{r warning=FALSE}
+
+top_20 <- reclamacoes_palavras %>% filter(is.na(as.numeric(palavra))) %>% group_by(orgao) %>% top_n(n=20, wt=n) %>% mutate(prop= n/total)
+ans_grafico <- top_20 %>%
+                ggplot(aes(x=reorder(palavra, prop), y=prop, fill = orgao)) +
+                  geom_histogram(data = subset(top_20, orgao=="ANS"),show.legend = FALSE, stat = "identity", fill="#3f51b5")+
+                    labs(x="Palavra", y="Proporção") +
+                      coord_flip()
+
+anatel_grafico <- top_20 %>%
+                    ggplot(aes(x=reorder(palavra, prop), y=prop, fill = orgao)) +
+                      geom_histogram(data = subset(top_20, orgao=="ANATEL"),show.legend = FALSE, stat = "identity", fill="#2f5755")+
+                          labs(x="Palavra", y="Proporção") +
+                            coord_flip()
+
+plot_grid(anatel_grafico, ans_grafico, labels = c('ANATEL', 'ANS'))
+
+```
+
