@@ -66,3 +66,44 @@ plot_grid(anatel_grafico, ans_grafico, labels = c('ANATEL', 'ANS'))
 
 ```
 
+
+## Análise de texto
+
+Agora analisaremos métricas sobre os dados da coluna que indica as reclamações. Inicialmente, verificaremos
+as principais métricas sobre a quantidade de caracteres em cada reclamação:
+
+```{r warning=FALSE}
+
+summary(nchar(reclamacoes$texto))
+```
+
+É possível verificar que há uma variação muito grande na quantidade de caracteres usados no caso mínimo(45 caracteres)
+e no caso máximo(3522 caracteres). É possível notar também que a média e a mediana estão ligeiramente distantes, 
+levando a conclusão que os valores do último quartil estão influenciando na média.
+
+Para verificar melhor essas condições, segue o histograma da quantidade de caracteres em cada reclamação:
+
+```{r warning=FALSE}
+
+hist(nchar(reclamacoes$texto), main = "Histograma da Quantidade de Caracteres em Texto de Reclamação",
+     xlab="Número de caracteres", ylab="Frequência")
+abline(v = mean(nchar(reclamacoes$texto)), col = "red", lwd = 2)
+abline(v=median(nchar(reclamacoes$texto)), col="green",lwd=2)
+legend(x="topright", #posicao da legenda
+c("Mediana","Média"), #nomes da legenda
+col=c("green","red"),
+lty=c(1,1), #estilo da linha
+lwd=c(2,2))
+```
+
+Outra forma de avaliar esses valores é através do boxplot:
+
+```{r warning=FALSE}
+
+boxplot(nchar(reclamacoes$texto), main = "Boxplot da Quantidade de Caracteres em Texto de Reclamação",
+     xlab="Número de caracteres", ylab="Frequência")
+```
+
+É possível verificar que existem 3 outliers na parte superior, confirmando a hipótese de que a média 
+está sofrendo influência desses valores.
+
