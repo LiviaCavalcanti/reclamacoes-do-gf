@@ -1,0 +1,47 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r setup, include=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(tidytext)
+```
+
+
+```{r message=FALSE}
+reclamacoes <- read_csv("../data/3-avaliacao-humana/reclamacoes-avaliadas-20190515.csv")
+```
+
+```{r}
+reclamacoes %>% 
+    group_by(orgao) %>% 
+    summarise(media = mean(insatisfacao))
+
+```
+
+# Analisando as medias calculadas a ANS parece ter um nível maior de insatisfação
+
+```{r}
+reclamacoes %>% 
+    ggplot(aes(y = insatisfacao, x = orgao,  color = orgao)) +
+    geom_jitter(alpha = .7) +
+    geom_point() 
+
+```
+
+# No plot acima Anatel parece ter uma fraca concetração de insatisfação entre os valores de 1 e 3. 
+# As médias de insatisfação entre os dois orgãos apresenta uma diferença pequena e quase insignificate de 0.43. O gráfico acima mostra que não parece existir uma contração de valores para um determinado orgão. O que nos leva a concluir que não existe uma relação entre orgão e nível de insatisfação.   
+
+
+```{r}
+datas <- reclamacoes$data
+
+strsplit(datas[1], " ")[1]
+
+
+
+```
+
