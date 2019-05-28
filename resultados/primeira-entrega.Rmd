@@ -7,12 +7,18 @@ output: html_notebook
 knitr::opts_chunk$set(echo = TRUE)
 
 library(tidyverse)
-library(tidytext)
+library(chron)
+#library(tidytext)
 ```
 
 
 ```{r message=FALSE}
 reclamacoes <- read_csv("../data/3-avaliacao-humana/reclamacoes-avaliadas-20190515.csv")
+reclamacoes %>% 
+    head() %>% 
+    select(data) %>% 
+    mutate(a = lubridate::dmy_hm(data), 
+           b = lubridate::hour(a))
 ```
 
 ```{r}
@@ -39,7 +45,9 @@ reclamacoes %>%
 ```{r}
 datas <- reclamacoes$data
 
-strsplit(datas[1], " ")[1]
+
+
+strsplit(datas[1], " ")[1] 
 
 
 
