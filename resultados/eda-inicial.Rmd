@@ -133,13 +133,12 @@ As médias de insatisfação entre os dois orgãos apresentam uma diferença peq
 
 Existe correlação entre o grau de insatisfação e o horário que foi feita a reclamação ?
 
+Foi realizado uma classificação para os horarios:*
+* 1 - Madrugada
+* 2 - Almoço
+* 3 - Outra
 
 ```{r message=FALSE}
-# 1 - Madrugada
-# 2 - Almoço
-# 3 - Outra
-
-
 reclamacoes <- read_csv("../data/3-avaliacao-humana/reclamacoes-avaliadas-20190515.csv")
 reclamacoes <- reclamacoes %>% 
       mutate(a = lubridate::dmy_hm(data), 
