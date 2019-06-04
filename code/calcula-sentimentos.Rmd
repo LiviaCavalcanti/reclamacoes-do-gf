@@ -12,16 +12,8 @@ theme_set(theme_bw())
 ```
 
 ```{r carrega}
-reclamacoes_raw = read_csv(here("data/0-reclamacoes-raw/20180604-reclamacoes-raw.csv"))
+reclamacoes_raw = read_csv(here("data/1-reclamacoes-selecionadas/20190515-reclamacoes-selecionadas.csv"))
 
-reclamacoes = reclamacoes_raw %>% 
-    mutate(
-        nome_orgao_site = orgao,
-        orgao = str_split(link, "/") %>% map_chr(~ .[[5]])
-    ) %>% 
-    filter(orgao %in% c("stf-supremo-tribunal-federal", "anac-agencia-nacional-de-aviacao-civil")) %>% 
-    mutate(id = 1:n(), 
-           grupo_avaliando = id %% 6 + 1) 
 ```
 
 O processo de estimativa será muito baseado em https://sillasgonzaga.github.io/2017-09-23-sensacionalista-pt01/ . 
@@ -39,9 +31,9 @@ glimpse(op30)
 Precisamos de um dataframe onde cada observação é uma palavra. 
 
 ```{r separa}
-palavra_a_palavra = reclamacoes %>% 
-    select(id, reclamacao) %>% 
-    unnest_tokens(termo, reclamacao)
+palavra_a_palavra = reclamacoes_raw %>% 
+    select(id, texto) %>% 
+    unnest_tokens(termo, texto)
 
 palavra_a_palavra %>%
   select(id, termo) %>%
@@ -64,6 +56,6 @@ sentimentos = palavras_com_sentimento %>%
               palavras = n())
 
 sentimentos %>% 
-    write_csv(here("data/sentimentos/sentimento.csv"))
+    write_csv(here("data/4-estimativa-automatica/sentimento.csv"))
 ```
 

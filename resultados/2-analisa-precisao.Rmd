@@ -8,33 +8,31 @@ library(tidyverse)
 library(here)
 library(modelr)
 library(broom)
-
+library(scales)
 theme_set(theme_bw())
 ```
 
 ## Os dados
 
 ```{r carrega}
-reclamacoes_raw = read_csv(here("data/reclamacoes-raw/reclamacoes-raw.csv"))
-avaliacoes_raw = read_csv(here("data/avaliacoes/avaliacoes-20180222.csv"))
-sentimentos = read_csv(here("data/sentimentos/sentimento.csv"))
-
+reclamacoes_raw = read_csv(here("data/1-reclamacoes-selecionadas/20190515-reclamacoes-selecionadas.csv"))
+avaliacoes_raw = read_csv(here("data/3-avaliacao-humana/avaliacoes20190515.csv"), col_names = c("matricula", "id", "insatisfacao"), skip=1)
+sentimentos = read_csv(here("data/4-estimativa-automatica/sentimento.csv"))
+colnames()
 reclamacoes_raw = reclamacoes_raw %>% 
-    mutate(id = 1:n(), 
-           comprimento_reclamacao = str_length(reclamacao), 
-           nome_orgao = str_split(link, "/") %>% map_chr(~ .[[5]]))
+    mutate(comprimento_reclamacao = str_length(texto))
 ```
 
 `reclamacoes_l` tem um formato long em vez de wide (explicado [aqui](https://sejdemyr.github.io/r-tutorials/basics/wide-and-long/)).
 
 ```{r junta}
 avaliacoes = avaliacoes_raw %>% 
-    group_by(id_reclamação) %>% 
-    summarise(insatisfação = median(insatisfação), 
+    group_by(id) %>% 
+    summarise(insatisfacao = median(insatisfacao), 
               avaliadores = n())
 
 reclamacoes = reclamacoes_raw %>% 
-    inner_join(avaliacoes, by = c("id" = "id_reclamação")) %>% 
+    inner_join(avaliacoes, by = "id")%>% 
     left_join(sentimentos, by = "id")
 
 reclamacoes_l = reclamacoes %>%  
@@ -49,16 +47,16 @@ Converte polaridades para escala 0-5
 
 ```{r}
 # Faça você mesmo. Crie a variável polaridade_normalizada
-# reclamacoes_l = reclamacoes_l %>% 
-#     group_by(lexico) %>% 
-#     mutate(polaridade_normalizada = ALGOAQUI)
+reclamacoes_l = reclamacoes_l %>%
+    group_by(lexico) %>%
+    mutate(polaridade_normalizada = floor(rescale(polaridade, to=c(1,5))))
 ```
 
 Calcula o erro por reclamação
 
 ```{r}
 reclamacoes_l = reclamacoes_l %>% 
-    mutate(erro = (insatisfação - polaridade_normalizada)**2)
+    mutate(erro = (insatisfacao - polaridade_normalizada)**2)
 ```
 
 
@@ -75,12 +73,12 @@ reclamacoes %>%
 
 ```{r}
 reclamacoes_l %>% 
-    ggplot(aes(x = insatisfação, y = polaridade_normalizada, group = insatisfação)) + 
+    ggplot(aes(x = insatisfacao, y = polaridade_normalizada, group = insatisfacao)) + 
     geom_jitter(alpha = .7)  + 
     facet_wrap(~ lexico)
 
 reclamacoes_l %>% 
-    ggplot(aes(x = insatisfação, y = erro, group = insatisfação)) + 
+    ggplot(aes(x = insatisfacao, y = erro, group = insatisfacao)) + 
     geom_jitter(alpha = .5)  +
     # geom_boxplo() + 
     facet_wrap(~ lexico)
