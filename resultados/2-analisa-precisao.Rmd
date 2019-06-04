@@ -78,7 +78,7 @@ reclamacoes_l %>%
     facet_wrap(~ lexico)
 
 reclamacoes_l %>% 
-    ggplot(aes(x = insatisfacao, y = erro, group = insatisfacao)) + 
+    ggplot(aes(x = insatisfacao, y = comprimento_reclamacao, group = insatisfacao)) + 
     geom_jitter(alpha = .5)  +
     # geom_boxplo() + 
     facet_wrap(~ lexico)
@@ -90,6 +90,9 @@ reclamacoes_l %>%
 Agora um modelo para responder sua pergunta.
 
 ```{r}
+cor(reclamacoes_l$insatisfacao, reclamacoes_l$comprimento_reclamacao)
+reg<-lm(insatisfacao ~ comprimento_reclamacao, reclamacoes_l)
+summary(reg)
 
 ```
 
