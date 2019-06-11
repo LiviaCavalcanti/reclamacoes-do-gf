@@ -59,6 +59,61 @@ reclamacoes_l = reclamacoes_l %>%
 ```
 
 
+## O tamanho da reclamação influência no nível de insatisfação
+
+# Analise leica
+```{r}
+reclamacoes_l %>% 
+    ggplot(aes( x = comprimento_reclamacao, y = polaridade_normalizada )) +
+    geom_jitter(alpha = .6) + 
+    geom_smooth(method = lm) +
+    labs(x = "Tamanho", y = "Insatisfação") 
+
+```
+
+#Analise Humana
+
+
+```{r}
+reclamacoes_l %>% 
+    ggplot(aes( x = comprimento_reclamacao, y = insatisfacao )) +
+    geom_jitter(alpha = .6) + 
+    geom_smooth(method = lm) +
+    labs(x = "Tamanho", y = "Insatisfação") 
+
+```
+
+# calculando a correlação
+
+```{r}
+cor_insatisfacao_tamanho <- cor(reclamacoes_l$insatisfacao, reclamacoes_l$comprimento_reclamacao)
+cor_insatisfacao_lexico_tamanho <- cor(reclamacoes_l$polaridade_normalizada, reclamacoes_l$comprimento_reclamacao)
+
+cor_insatisfacao_tamanho
+cor_insatisfacao_lexico_tamanho
+```
+
+
+#Correlação quantidade de palavras e insatisfação 
+```{r}
+cor <- cor(reclamacoes_l$polaridade_normalizada, reclamacoes_l$palavras)
+cor
+
+```
+ 
+# gerando um modelo 
+
+```{r}
+mod <- lm(insatisfacao ~ comprimento_reclamacao, 
+   data =  reclamacoes_l)
+
+summary(mod)
+
+```
+
+
+
+
 ## EDA
 
 Inicial. Faça os gráficos a mais que achar necessário para entender os dados que temos de resultado.
