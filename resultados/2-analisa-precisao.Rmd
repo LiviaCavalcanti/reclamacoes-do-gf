@@ -132,10 +132,10 @@ reclamacoes_l %>%
     facet_wrap(~ lexico)
 
 reclamacoes_l %>% 
-    ggplot(aes(x = insatisfacao, y = comprimento_reclamacao, group = insatisfacao)) + 
-    geom_jitter(alpha = .5)  +
-    # geom_boxplo() + 
-    facet_wrap(~ lexico)
+    ggplot(aes(x = insatisfacao, y = polaridade_normalizada, group = insatisfacao)) + 
+    geom_jitter()  +
+    facet_wrap(~ lexico)+
+    labs(x = "Insatisfação", y = "Polaridade Normalizada")
 ```
 
 
@@ -167,9 +167,27 @@ cor_comprime_insatis_lexico = cor(reclamacoes_l$comprimento_reclamacao, reclamac
 cor_comprime_insatis_humano = cor(reclamacoes_l$comprimento_reclamacao, reclamacoes_l$insatisfacao)
 ```
 
+## Criando modelos
+
 ```{r}
-reg2 <-lm(polaridade_normalizada ~ polaridade, reclamacoes_l)
-summary(reg2)
+predicters_analise <- reclamacoes_l %>% 
+  group_by(lexico) %>% 
+  summarise(sumErro = sum(erro))
+
+data_sent <- reclamacoes_l %>% 
+  filter(lexico == "sentimento_sent") %>% 
+  select(id, orgao, polaridade_normalizada, erro, insatisfacao)
+data_op30 <- reclamacoes_l %>% 
+  filter(lexico == "sentimento_op30") %>% 
+  select(id, orgao, polaridade_normalizada, erro, insatisfacao)
+
+reg_sent <- lm(insatisfacao ~ polaridade_normalizada, data_sent)
+reg_op30 <- lm(insatisfacao ~ polaridade_normalizada, data_op30)
+summary(reg_sent)
+summary(reg_op30)
+
+plot(reg_sent$fit, reg_sent$res, pch=20, main="Gráfico de Dispersão para base 1", xlab="Predito", ylab="Residuo")
+plot(reg_op30$fit, reg_op30$res, pch=20, main="Gráfico de Dispersão para base 2", xlab="Predito", ylab="Residuo")
 ```
  
 
