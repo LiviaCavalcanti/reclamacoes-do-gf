@@ -50,19 +50,30 @@ reclamacoes_l = reclamacoes_l %>%
     group_by(lexico) %>%
     mutate(polaridade_normalizada = (rescale(polaridade, to=c(1,5))))
 
-
 ```
 
 Calcula o erro por reclamação
 
 ```{r}
 reclamacoes_l = reclamacoes_l %>% 
-    mutate(erro = (insatisfacao - polaridade_normalizada))
+    mutate(erro = (insatisfacao - polaridade_normalizada), se=((insatisfacao - polaridade_normalizada) ** 2))
+mean(reclamacoes_l$se)
+```
 
+```{r}
+reclamacoes_l %>%
+  ggplot(aes(y = erro, x = insatisfacao)) +
+  geom_point() +
+  scale_x_continuous(breaks=seq(-5, 5, 1)) +
+    labs(x = "Erro", y = "Insatisfação") 
+```
+
+```{r}
 reclamacoes_l %>%
   ggplot(aes(x = erro)) +
   geom_density() +
-  scale_x_continuous(breaks=seq(-5, 5, 1))
+  scale_x_continuous(breaks=seq(-5, 5, 1)) +
+  labs(y = "Densidade", x = "Erro") 
 ```
 
 
