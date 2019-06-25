@@ -48,14 +48,21 @@ Converte polaridades para escala 0-5
 # Faça você mesmo. Crie a variável polaridade_normalizada
 reclamacoes_l = reclamacoes_l %>%
     group_by(lexico) %>%
-    mutate(polaridade_normalizada = floor(rescale(polaridade, to=c(1,5))))
+    mutate(polaridade_normalizada = (rescale(polaridade, to=c(1,5))))
+
+
 ```
 
 Calcula o erro por reclamação
 
 ```{r}
 reclamacoes_l = reclamacoes_l %>% 
-    mutate(erro = (insatisfacao - polaridade_normalizada)**2)
+    mutate(erro = (insatisfacao - polaridade_normalizada))
+
+reclamacoes_l %>%
+  ggplot(aes(x = erro)) +
+  geom_density() +
+  scale_x_continuous(breaks=seq(-5, 5, 1))
 ```
 
 
@@ -96,7 +103,7 @@ cor_insatisfacao_lexico_tamanho
 
 #Correlação quantidade de palavras e insatisfação 
 ```{r}
-cor <- cor(reclamacoes_l$polaridade_normalizada, reclamacoes_l$palavras)
+cor <- cor(reclamacoes_l$polaridade_normalizada, reclamacoes_l$insatisfacao)
 cor
 
 ```
@@ -133,7 +140,7 @@ reclamacoes_l %>%
 
 reclamacoes_l %>% 
     ggplot(aes(x = insatisfacao, y = polaridade_normalizada, group = insatisfacao)) + 
-    geom_jitter()  +
+    geom_jitter(alpha=.5)  +
     facet_wrap(~ lexico)+
     labs(x = "Insatisfação", y = "Polaridade Normalizada")
 ```
